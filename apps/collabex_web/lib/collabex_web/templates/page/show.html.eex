@@ -1,0 +1,1 @@
+<div data-topic="<%= @topic %>" id="editor" style="height: 80rem"></div>

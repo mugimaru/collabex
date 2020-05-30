@@ -16,7 +16,7 @@ defmodule CollabexWeb.Router do
   scope "/", CollabexWeb do
     pipe_through :browser
 
-    get "/", PageController, :index
+    get "/e/:topic", PageController, :show
   end
 
   # Other scopes may use custom stacks.

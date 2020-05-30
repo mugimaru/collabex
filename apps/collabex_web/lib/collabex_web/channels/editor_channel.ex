@@ -5,6 +5,8 @@ defmodule CollabexWeb.EditorChannel do
 
   @impl true
   def join("editors:" <> topic, %{"user_name" => user_name}, socket) do
+    IO.inspect(topic, label: :join_topic)
+
     socket =
       socket
       |> assign(:topic, topic)
