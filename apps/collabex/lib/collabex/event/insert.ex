@@ -1,4 +1,5 @@
 defmodule Collabex.Event.Insert do
+  @derive Jason.Encoder
   defstruct [:index, :text]
 
   @type t :: %__MODULE__{

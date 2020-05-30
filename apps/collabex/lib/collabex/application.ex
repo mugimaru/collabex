@@ -5,7 +5,8 @@ defmodule Collabex.Application do
 
   def start(_type, _args) do
     children = [
-      {Phoenix.PubSub, name: Collabex.PubSub}
+      {Phoenix.PubSub, name: Collabex.PubSub},
+      Collabex.InMemoryEventStore.Supervisor
     ]
 
     Supervisor.start_link(children, strategy: :one_for_one, name: Collabex.Supervisor)

@@ -1,4 +1,5 @@
 defmodule Collabex.Event.Delete do
+  @derive Jason.Encoder
   defstruct [:index, :length, :text]
 
   @type t :: %__MODULE__{

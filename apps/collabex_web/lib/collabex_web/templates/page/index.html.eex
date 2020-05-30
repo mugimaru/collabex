@@ -1,9 +1,6 @@
-  <div class="row">
+  <%# <div class="row">
     <div class="column">
-      <div id="source" style="height: 80rem"></div>
-    </div>
 
-    <div class="column">
-      <div id="target" style="height: 80rem"></div>
     </div>
-  </div>
+  </div> %>
+<div id="editor" style="height: 80rem"></div>

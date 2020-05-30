@@ -1,55 +1,63 @@
-// We need to import the CSS so that webpack will load it.
-// The MiniCssExtractPlugin is used to separate it out into
-// its own CSS file.
 import "../css/app.scss"
-
-// webpack automatically bundles all modules in your
-// entry points. Those entry points can be configured
-// in "webpack.config.js".
-//
-// Import deps with the dep name or local files with a relative path, for example:
-//
-//     import {Socket} from "phoenix"
-//     import socket from "./socket"
-//
-import "phoenix_html"
 
 import * as monaco from 'monaco-editor'
 import * as MonacoCollabExt from '@convergencelabs/monaco-collab-ext'
 
+import { Socket } from "phoenix"
+let socket = new Socket("/socket", { params: {} })
+socket.connect()
+const userName = Math.random().toString(36).substring(7)
 
-function createEditor(elemId) {
-  return monaco.editor.create(document.getElementById(elemId), {
-    theme: 'vs-dark',
-    language: 'markdown',
-    minimap: {
-      enabled: false,
-    },
-  });
-}
+let channel = socket.channel("editors:default", { user_name: userName })
 
-const source = createEditor('source')
-
-const target = createEditor('target')
-const targetContentManager = new MonacoCollabExt.EditorContentManager({
-  editor: target
+const editor = monaco.editor.create(document.getElementById("editor"), {
+  theme: 'vs-dark',
+  language: 'markdown',
+  minimap: {
+    enabled: false,
+  },
 });
 
 const contentManager = new MonacoCollabExt.EditorContentManager({
-  editor: source,
-  onInsert(index, text) {
-    target.updateOptions({readOnly: false});
-    targetContentManager.insert(index, text);
-    target.updateOptions({readOnly: true});
+  editor: editor,
+  onInsert (index, text) {
+    channel.push("insert", { index, text })
   },
-  onReplace(index, length, text) {
-    target.updateOptions({readOnly: false});
-    targetContentManager.replace(index, length, text);
-    target.updateOptions({readOnly: true});
+  onReplace (index, length, text) {
+    channel.push("replace", { index, text, length })
   },
-  onDelete(index, length) {
-    target.updateOptions({readOnly: false});
-    targetContentManager.delete(index, length);
-    target.updateOptions({readOnly: true});
+  onDelete (index, length) {
+    channel.push(["delete", { index, length }])
   }
 });
+
+channel.join()
+  .receive("ok", resp => {
+    for (const item of resp.events) {
+      switch (item.event_type) {
+        case "insert":
+          contentManager.insert(item.event.index, item.event.text)
+          break;
+        case "delete":
+          contentManager.delete(item.event.index, item.event.length)
+          break;
+        case "replace":
+          contentManager.replace(item.event.index, item.event.length, item.event.text)
+          break;
+      }
+    }
+
+    channel.on("inserted", payload => {
+      console.log(payload)
+      contentManager.insert(payload.event.index, payload.event.text)
+    })
+
+    channel.on("deleted", payload => {
+      contentManager.delete(payload.event.index, payload.event.length)
+    })
+
+    channel.on("replaced", payload => {
+      contentManager.replace(payload.event.index, payload.event.length, payload.event.text)
+    })
+  })
+  .receive("error", resp => { alert("Unable to join") })

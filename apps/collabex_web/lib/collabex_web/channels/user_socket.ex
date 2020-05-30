@@ -1,6 +1,8 @@
 defmodule CollabexWeb.UserSocket do
   use Phoenix.Socket
 
+  channel "editors:*", CollabexWeb.EditorChannel
+
   ## Channels
   # channel "room:*", CollabexWeb.RoomChannel
 
