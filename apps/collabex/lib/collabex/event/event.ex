@@ -1,26 +1,26 @@
 defmodule Collabex.Event do
-  defstruct [:timestamp, :event, :meta]
+  defstruct [:timestamp, :event, :user]
 
   alias Collabex.Event
 
   @type event :: Event.Insert.t() | Event.Delete.t() | Event.Replace.t()
 
   @type t :: %__MODULE__{
-          timestamp: pos_integer(),
+          timestamp: integer(),
           event: event(),
-          meta: Event.Meta.t()
+          user: Event.User.t()
         }
 
   @spec new(
           timestamp :: integer(),
-          user_name :: term,
+          user :: Collabex.Event.User.t(),
           {:delete, keyword()} | {:insert, keyword()} | {:replace, keyword()}
         ) :: Collabex.Event.t()
-  def new(timestamp, user_name, {type, args}) do
+  def new(timestamp, user, {type, args}) do
     __struct__(
       timestamp: timestamp,
       event: event_args_into_struct({type, args}),
-      meta: Collabex.Event.Meta.__struct__(user_name: user_name)
+      user: user
     )
   end
 
@@ -33,6 +33,6 @@ defmodule Collabex.Event do
   end
 
   defp event_args_into_struct({:delete, args}) do
-    Collabex.Event.Replace.__struct__(args)
+    Collabex.Event.Delete.__struct__(args)
   end
 end

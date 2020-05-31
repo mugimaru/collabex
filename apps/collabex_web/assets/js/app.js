@@ -39,7 +39,7 @@ if (editorElem) {
   const socket = new Socket('/socket', { params: {} });
   socket.connect();
 
-  const channel = socket.channel(`editors:${editorElem.getAttribute('data-topic')}`, { user_name: getUserName() });
+  const channel = socket.channel(`editors:${editorElem.getAttribute('data-topic')}`, { user_name: getUserName(), user_color: 'blue' });
 
   const editor = monaco.editor.create(editorElem, {
     theme: 'vs-dark',
