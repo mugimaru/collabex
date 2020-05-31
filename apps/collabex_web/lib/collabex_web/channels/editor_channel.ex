@@ -5,8 +5,6 @@ defmodule CollabexWeb.EditorChannel do
 
   @impl true
   def join("editors:" <> topic, %{"user_name" => user_name}, socket) do
-    IO.inspect(topic, label: :join_topic)
-
     socket =
       socket
       |> assign(:topic, topic)
@@ -21,6 +19,7 @@ defmodule CollabexWeb.EditorChannel do
     {:error, "unmatched topic", socket}
   end
 
+  @impl true
   def handle_in("insert", %{"index" => index, "text" => text}, socket) do
     event =
       Collabex.Event.new(
