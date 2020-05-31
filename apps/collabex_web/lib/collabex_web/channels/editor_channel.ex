@@ -67,6 +67,11 @@ defmodule CollabexWeb.EditorChannel do
     {:noreply, socket}
   end
 
+  @impl true
+  def terminate(_reason, %{assigns: %{topic: topic, user: user}}) do
+    EditorSession.leave(topic, user)
+  end
+
   defp encode_event(%Event{event: event, user: user, timestamp: ts}) do
     %{timestamp: ts, event: event, event_type: event_type(event), user: user}
   end

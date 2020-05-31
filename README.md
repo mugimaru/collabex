@@ -5,8 +5,8 @@ Collaborative code editor with [Microsoft/monaco-editor](https://microsoft.githu
 ## TODO
 
 - [x] Simplest proof of concept
-- [ ] Handle join/leave properly
-- [ ] Display users list
+- [x] Handle join/leave properly
+- [x] Display users list
 - [ ] Display cursor and selection
 - [x] Root page with "new session" button
 
