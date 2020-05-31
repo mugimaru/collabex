@@ -1,1 +1,9 @@
-<div data-topic="<%= @topic %>" id="editor" style="height: 80rem"></div>
+
+<div style="display: flex">
+  <div style="flex: 85%">
+    <div data-topic="<%= @topic %>" id="editor" style="height: 50rem"></div>
+  </div>
+  <div style="flex: 15%">
+    <ul id="users-list" style="list-style-type: none" />
+  </div>
+</div>

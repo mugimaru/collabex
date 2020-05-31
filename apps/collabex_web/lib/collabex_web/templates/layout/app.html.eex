@@ -9,6 +9,9 @@
     <script defer type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
   </head>
   <body>
+    <div>
+      <h4 style="padding-left: 1rem">Collabex</h4>
+    </div>
     <%= @inner_content %>
   </body>
 </html>

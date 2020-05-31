@@ -1,5 +1,6 @@
 defmodule Collabex.EventStore do
   @type topic :: term
+  @type t :: module()
 
   @callback add_event(topic(), Collabex.Event.t()) :: :ok | {:error, term}
   @callback replay(topic()) :: {:ok, [Collabex.Event.t()]} | {:error, term}
