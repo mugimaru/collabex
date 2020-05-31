@@ -56,6 +56,11 @@ defmodule CollabexWeb.EditorChannel do
     {:noreply, socket}
   end
 
+  def handle_in("changeCursorSelection", %{"startOffset" => so, "endOffset" => eo}, socket) do
+    broadcast_from!(socket, "cursorSelectionChanged", %{user: socket.assigns[:user], startOffset: so, endOffset: eo})
+    {:noreply, socket}
+  end
+
   @impl true
   def handle_info({EditorSession, [:user_joined, %Collabex.Event.User{} = user]}, socket) do
     push(socket, "user_joined", %{user: user})

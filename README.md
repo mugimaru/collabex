@@ -7,7 +7,7 @@ Collaborative code editor with [Microsoft/monaco-editor](https://microsoft.githu
 - [x] Simplest proof of concept
 - [x] Handle join/leave properly
 - [x] Display users list
-- [ ] Display cursor and selection
+- [x] Display cursor and selection
 - [x] Root page with "new session" button
 
 ## Usage

@@ -75,6 +75,14 @@ function setupEditor(editorId, usersUlid) {
       channel.push(['delete', { index, length }]);
     },
   });
+  const userSelections = {};
+  const selectionManager = new MonacoCollabExt.RemoteSelectionManager({ editor });
+
+  editor.onDidChangeCursorSelection((e) => {
+    const startOffset = editor.getModel().getOffsetAt(e.selection.getStartPosition());
+    const endOffset = editor.getModel().getOffsetAt(e.selection.getEndPosition());
+    channel.push('changeCursorSelection', { startOffset, endOffset });
+  });
 
   channel.join()
     .receive('ok', (resp) => {
@@ -96,6 +104,7 @@ function setupEditor(editorId, usersUlid) {
 
       resp.users.forEach((user) => {
         users[user.name] = user;
+        userSelections[user.name] = selectionManager.addSelection(user.name, user.color, user.name);
       });
       usersUl.innerHTML = renderUsersList(users);
 
@@ -114,12 +123,20 @@ function setupEditor(editorId, usersUlid) {
 
       channel.on('user_joined', (payload) => {
         users[payload.user.name] = payload.user;
+        userSelections[payload.user.name] = selectionManager.addSelection(payload.user.name, payload.user.color, payload.user.name);
         usersUl.innerHTML = renderUsersList(users);
       });
 
       channel.on('user_left', (payload) => {
         delete users[payload.user.name];
+        userSelections[payload.user.name].dispose();
+        delete userSelections[payload.user.name];
+
         usersUl.innerHTML = renderUsersList(users);
+      });
+
+      channel.on('cursorSelectionChanged', (payload) => {
+        selectionManager.setSelectionOffsets(payload.user.name, payload.startOffset, payload.endOffset);
       });
     });
 
