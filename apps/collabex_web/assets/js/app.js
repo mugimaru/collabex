@@ -1,8 +1,13 @@
 import '../css/app.scss';
 
+import { Socket } from 'phoenix';
 import setupEditor from './editor';
 
-setupEditor('editor', 'users-list');
+
+const socket = new Socket('/socket', { params: {} });
+socket.connect();
+
+setupEditor(socket, 'editor', 'users-list');
 
 const newSessionBtn = document.getElementById('new-session-btn');
 

@@ -1,8 +1,6 @@
 import * as monaco from 'monaco-editor';
 import * as MonacoCollabExt from '@convergencelabs/monaco-collab-ext';
 
-import { Socket } from 'phoenix';
-
 const users = {};
 
 function getRandomColor() {
@@ -42,16 +40,13 @@ function renderUsersList(usersObj) {
   return html;
 }
 
-function setupEditor(editorId, usersUlid) {
+function setupEditor(socket, editorId, usersUlid) {
   const editorElem = document.getElementById(editorId);
   const usersUl = document.getElementById(usersUlid);
 
   if (editorElem == null || usersUl == null) {
     return null;
   }
-
-  const socket = new Socket('/socket', { params: {} });
-  socket.connect();
 
   const channel = socket.channel(`editors:${editorElem.getAttribute('data-topic')}`, { user_name: getUserName(), user_color: getRandomColor() });
 
@@ -61,6 +56,7 @@ function setupEditor(editorId, usersUlid) {
     minimap: {
       enabled: false,
     },
+    readOnly: true,
   });
 
   const contentManager = new MonacoCollabExt.EditorContentManager({
@@ -72,7 +68,7 @@ function setupEditor(editorId, usersUlid) {
       channel.push('replace', { index, text, length });
     },
     onDelete(index, length) {
-      channel.push(['delete', { index, length }]);
+      channel.push('delete', { index, length });
     },
   });
   const userSelections = {};
@@ -86,6 +82,7 @@ function setupEditor(editorId, usersUlid) {
 
   channel.join()
     .receive('ok', (resp) => {
+      editor.updateOptions({ readOnly: false });
       resp.events.forEach((item) => {
         switch (item.event_type) {
           case 'insert':

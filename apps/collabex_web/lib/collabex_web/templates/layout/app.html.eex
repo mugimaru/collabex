@@ -4,14 +4,20 @@
     <meta charset="utf-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Collabex · Phoenix Framework</title>
+    <title>Collabex</title>
     <link rel="stylesheet" href="<%= Routes.static_path(@conn, "/css/app.css") %>"/>
     <script defer type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
   </head>
   <body>
-    <div>
-      <h4 style="padding-left: 1rem">Collabex</h4>
-    </div>
-    <%= @inner_content %>
+    <a id="gh-link" href="https://github.com/mugimaru73/collabex">
+      <img width="149" height="149" src="<%= Routes.static_path(@conn, "/images/forkme.png") %>" alt="Fork me on GitHub">
+    </a>
+    <nav>
+      <h1> <%= link "Collabex", to: "/" %></h1>
+    </nav>
+
+    <main>
+      <%= @inner_content %>
+    </main>
   </body>
 </html>
