@@ -61,6 +61,12 @@ defmodule CollabexWeb.EditorChannel do
     {:noreply, socket}
   end
 
+  def handle_in("changeEditorMode", %{"mode" => mode}, socket) do
+    # TODO: save selected mode for session
+    broadcast_from!(socket, "editorModeChanged", %{user: socket.assigns[:user], mode: mode})
+    {:noreply, socket}
+  end
+
   @impl true
   def handle_info({EditorSession, [:user_joined, %Collabex.Event.User{} = user]}, socket) do
     push(socket, "user_joined", %{user: user})

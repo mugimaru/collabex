@@ -7,7 +7,7 @@ import setupEditor from './editor';
 const socket = new Socket('/socket', { params: {} });
 socket.connect();
 
-setupEditor(socket, 'editor', 'users-list', 'themes-select');
+setupEditor(socket, 'editor', 'users-list', 'themes-select', 'modes-select');
 
 const newSessionBtn = document.getElementById('new-session-btn');
 

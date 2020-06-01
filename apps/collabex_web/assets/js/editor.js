@@ -8,12 +8,14 @@ Object.entries(require('monaco-themes/themes/themelist.json')).forEach(([themeId
   editorThemes[themeId] = themeName;
 });
 
+const defaultLang = 'markdown';
+
 const users = {};
 
 function getRandomColor() {
   const letters = '0123456789ABCDEF';
   let color = '#';
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < 6; i += 1) {
     color += letters[Math.floor(Math.random() * 16)];
   }
   return color;
@@ -47,7 +49,7 @@ function renderUsersList(usersObj) {
   return html;
 }
 
-function setupEditor(socket, editorId, usersUlid, themesSelectId) {
+function setupEditor(socket, editorId, usersUlid, themesSelectId, modesSelectId) {
   const editorElem = document.getElementById(editorId);
   const usersUl = document.getElementById(usersUlid);
 
@@ -63,11 +65,19 @@ function setupEditor(socket, editorId, usersUlid, themesSelectId) {
   themesSelect.innerHTML = html;
   themesSelect.addEventListener('change', () => { monaco.editor.setTheme(themesSelect.options[themesSelect.selectedIndex].value); });
 
+  const modesSelect = document.getElementById(modesSelectId);
+  html = '';
+  monaco.languages.getLanguages().forEach((lang) => {
+    const selected = (lang.id === defaultLang) ? 'selected="selected"' : '';
+    html += `<option value="${lang.id}" ${selected}>${lang.aliases[0] || lang.id}</option>`;
+  });
+  modesSelect.innerHTML = html;
+
   const channel = socket.channel(`editors:${editorElem.getAttribute('data-topic')}`, { user_name: getUserName(), user_color: getRandomColor() });
 
   const editor = monaco.editor.create(editorElem, {
     theme: defaultTheme,
-    language: 'markdown',
+    language: defaultLang,
     minimap: {
       enabled: false,
     },
@@ -120,6 +130,10 @@ function setupEditor(socket, editorId, usersUlid, themesSelectId) {
       });
       usersUl.innerHTML = renderUsersList(users);
 
+      modesSelect.addEventListener('change', () => {
+        monaco.editor.setModelLanguage(editor.getModel(), modesSelect.value);
+        channel.push('changeEditorMode', { mode: modesSelect.value });
+      });
 
       channel.on('inserted', (payload) => {
         contentManager.insert(payload.event.index, payload.event.text);
@@ -149,6 +163,17 @@ function setupEditor(socket, editorId, usersUlid, themesSelectId) {
 
       channel.on('cursorSelectionChanged', (payload) => {
         selectionManager.setSelectionOffsets(payload.user.name, payload.startOffset, payload.endOffset);
+      });
+
+      channel.on('editorModeChanged', (payload) => {
+        for (let i = 0; i < modesSelect.options.length; i += 1) {
+          if (modesSelect.options[i].value === payload.mode) {
+            modesSelect.selectedIndex = i;
+            break;
+          }
+        }
+
+        monaco.editor.setModelLanguage(editor.getModel(), payload.mode);
       });
     });
 

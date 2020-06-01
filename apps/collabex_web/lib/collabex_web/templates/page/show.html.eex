@@ -7,8 +7,10 @@
 
   <div class="editor-sidebar">
     <span>Theme:</span>
-      <select id="themes-select">
-    </select>
+    <select id="themes-select"></select>
+
+    <span>Mode:</span>
+    <select id="modes-select"></select>
 
     <span> Users </span>
     <hr>
