@@ -1,6 +1,13 @@
 import * as monaco from 'monaco-editor';
 import * as MonacoCollabExt from '@convergencelabs/monaco-collab-ext';
 
+const defaultTheme = 'vs-light';
+const editorThemes = { 'vs-light': 'VS light', 'vs-dark': 'VS dark' };
+Object.entries(require('monaco-themes/themes/themelist.json')).forEach(([themeId, themeName]) => {
+  monaco.editor.defineTheme(themeId, require(`monaco-themes/themes/${themeName}.json`));
+  editorThemes[themeId] = themeName;
+});
+
 const users = {};
 
 function getRandomColor() {
@@ -40,7 +47,7 @@ function renderUsersList(usersObj) {
   return html;
 }
 
-function setupEditor(socket, editorId, usersUlid) {
+function setupEditor(socket, editorId, usersUlid, themesSelectId) {
   const editorElem = document.getElementById(editorId);
   const usersUl = document.getElementById(usersUlid);
 
@@ -48,10 +55,18 @@ function setupEditor(socket, editorId, usersUlid) {
     return null;
   }
 
+  const themesSelect = document.getElementById(themesSelectId);
+  let html = '';
+  Object.entries(editorThemes).forEach(([themeId, themeName]) => {
+    html += `<option value="${themeId}">${themeName}</option>`;
+  });
+  themesSelect.innerHTML = html;
+  themesSelect.addEventListener('change', () => { monaco.editor.setTheme(themesSelect.options[themesSelect.selectedIndex].value); });
+
   const channel = socket.channel(`editors:${editorElem.getAttribute('data-topic')}`, { user_name: getUserName(), user_color: getRandomColor() });
 
   const editor = monaco.editor.create(editorElem, {
-    theme: 'vs-light',
+    theme: defaultTheme,
     language: 'markdown',
     minimap: {
       enabled: false,

@@ -4,6 +4,16 @@
     <div data-topic="<%= @topic %>" id="editor" style="height: 50rem"></div>
   </div>
   <div style="flex: 15%">
-    <ul id="users-list" style="list-style-type: none" />
+
+  <div class="editor-sidebar">
+    <span>Theme:</span>
+      <select id="themes-select">
+    </select>
+
+    <span> Users </span>
+    <hr>
+    <ul id="users-list"/>
+  </div>
+
   </div>
 </div>
