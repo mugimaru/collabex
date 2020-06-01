@@ -9,7 +9,8 @@ defmodule Collabex.EditorSession do
     end
   end
 
-  @spec join(EventStore.topic(), Event.User.t()) :: {:ok, Event.User.t()}
+  @spec join(EventStore.topic(), Event.User.t()) ::
+          {:ok, %{config: Collabex.EditorSession.Config.t(), users: [User.t()]}}
   def join(topic, user) do
     with {:ok, pid} <- SessionsSupervisor.find_or_start_child(topic),
          {:ok, user} <- Session.join(pid, user) do
@@ -31,6 +32,13 @@ defmodule Collabex.EditorSession do
   def list_users(topic) do
     with {:ok, pid} <- SessionsSupervisor.find_or_start_child(topic) do
       Session.list_users(pid)
+    end
+  end
+
+  @spec put_config(EventStore.topic(), key :: atom, value :: term) :: {:ok, Collabex.EditorSession.Config.t()}
+  def put_config(topic, key, value) when key in [:mode] do
+    with {:ok, pid} <- SessionsSupervisor.find_or_start_child(topic) do
+      Session.put_config(pid, key, value)
     end
   end
 

@@ -6,10 +6,11 @@ defmodule CollabexWeb.EditorChannel do
 
   @impl true
   def join("editors:" <> topic, %{"user_name" => user_name, "user_color" => color}, socket) do
+    user = %User{name: user_name, color: color}
+
     with :ok <- EditorSession.subscribe(topic),
-         {:ok, user} <- EditorSession.join(topic, %User{name: user_name, color: color}),
-         {:ok, event_store} <- EditorSession.event_store(topic),
-         {:ok, users} <- EditorSession.list_users(topic) do
+         {:ok, %{config: config, users: users}} <- EditorSession.join(topic, user),
+         {:ok, event_store} <- EditorSession.event_store(topic) do
       socket =
         socket
         |> assign(:topic, topic)
@@ -18,7 +19,7 @@ defmodule CollabexWeb.EditorChannel do
 
       {:ok, events} = event_store.replay(topic)
 
-      {:ok, %{users: users, events: Enum.map(events, &encode_event/1)}, socket}
+      {:ok, %{users: users, config: config, events: Enum.map(events, &encode_event/1)}, socket}
     else
       {:error, reason} ->
         {:error, %{reason: reason}, socket}
@@ -62,13 +63,13 @@ defmodule CollabexWeb.EditorChannel do
   end
 
   def handle_in("changeEditorMode", %{"mode" => mode}, socket) do
-    # TODO: save selected mode for session
+    EditorSession.put_config(socket.assigns[:topic], :mode, mode)
     broadcast_from!(socket, "editorModeChanged", %{user: socket.assigns[:user], mode: mode})
     {:noreply, socket}
   end
 
   @impl true
-  def handle_info({EditorSession, [:user_joined, %Collabex.Event.User{} = user]}, socket) do
+  def handle_info({EditorSession, [:user_joined, %{users: [user | _]}]}, socket) do
     push(socket, "user_joined", %{user: user})
     {:noreply, socket}
   end

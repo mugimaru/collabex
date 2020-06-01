@@ -105,6 +105,18 @@ function setupEditor(socket, editorId, usersUlid, themesSelectId, modesSelectId)
     channel.push('changeCursorSelection', { startOffset, endOffset });
   });
 
+  function setEditorMode(editor, modesSelect, mode) {
+    for (let i = 0; i < modesSelect.options.length; i += 1) {
+      if (modesSelect.options[i].value === mode) {
+        modesSelect.selectedIndex = i;
+        break;
+      }
+    }
+
+    monaco.editor.setModelLanguage(editor.getModel(), mode);
+  }
+
+
   channel.join()
     .receive('ok', (resp) => {
       editor.updateOptions({ readOnly: false });
@@ -129,6 +141,11 @@ function setupEditor(socket, editorId, usersUlid, themesSelectId, modesSelectId)
         userSelections[user.name] = selectionManager.addSelection(user.name, user.color, user.name);
       });
       usersUl.innerHTML = renderUsersList(users);
+
+      console.log(resp);
+      if (resp.config.mode !== null) {
+        setEditorMode(editor, modesSelect, resp.config.mode);
+      }
 
       modesSelect.addEventListener('change', () => {
         monaco.editor.setModelLanguage(editor.getModel(), modesSelect.value);
@@ -166,14 +183,7 @@ function setupEditor(socket, editorId, usersUlid, themesSelectId, modesSelectId)
       });
 
       channel.on('editorModeChanged', (payload) => {
-        for (let i = 0; i < modesSelect.options.length; i += 1) {
-          if (modesSelect.options[i].value === payload.mode) {
-            modesSelect.selectedIndex = i;
-            break;
-          }
-        }
-
-        monaco.editor.setModelLanguage(editor.getModel(), payload.mode);
+        setEditorMode(editor, modesSelect, payload.mode);
       });
     });
 
