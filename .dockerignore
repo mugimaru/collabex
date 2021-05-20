@@ -1,2 +1,4 @@
 /_build
 /apps/collabex_web/assets/node_modules
+/.git
+/.elixir_ls
